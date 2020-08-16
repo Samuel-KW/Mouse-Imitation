@@ -56,3 +56,50 @@ function bezier (start, p1, p2, end, accuracy=0.01) {
 
     return steps;
 }
+
+// Handle mouse events
+function handle_mouse(event) {
+    if (mouse_moved === false) {
+        mouse_moved = true;
+        x = event.clientX;
+        y = event.clientY;
+    }
+
+    let old_x = x,
+        old_y = y;
+
+    x = event.clientX;
+    y = event.clientY;
+
+    // Draw event types
+    switch(event.type) {
+        case 'mousemove':
+
+            ctx.beginPath();
+            ctx.moveTo(old_x, old_y);
+            
+            ctx.lineTo(x, y);
+
+            ctx.strokeStyle = '#000';
+            ctx.stroke();
+
+            break;
+        case 'mousedown':
+
+            ctx.beginPath();
+            ctx.arc(x, y, 7, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'green';
+            ctx.fill();
+
+            break;
+        case 'mouseup':
+
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+
+            break;
+    }
+}
+
