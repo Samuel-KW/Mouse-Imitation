@@ -34,3 +34,25 @@ function dispatch_loop () {
 }
 window.requestAnimationFrame(dispatch_loop);
 
+// Get points along bezier curve
+function bezier (start, p1, p2, end, accuracy=0.01) {
+    let cX = 3 * (p1.x - start.x),
+        bX = 3 * (p2.x - p1.x) - cX,
+        aX = end.x - start.x - cX - bX;
+
+    let cY = 3 * (p1.y - start.y),
+        bY = 3 * (p2.y - p1.y) - cY,
+        aY = end.y - start.y - cY - bY;
+
+    let steps = [];
+    for (let i = 0; i < 1; i += accuracy) {
+        let x = (aX * Math.pow(i, 3)) + (bX * Math.pow(i, 2)) + (cX * i) + start.x,
+            y = (aY * Math.pow(i, 3)) + (bY * Math.pow(i, 2)) + (cY * i) + start.y;
+
+        steps.push({ x, y });
+    }
+
+    steps.push(end);
+
+    return steps;
+}
