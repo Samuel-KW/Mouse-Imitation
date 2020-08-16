@@ -103,3 +103,15 @@ function handle_mouse(event) {
     }
 }
 
+// Spoof mouse movement realistically
+function move_mouse(pos={ x: 0, y: 0 }, speed=0.01) {
+    let current = { x, y };
+
+    let path = bezier(current, { x: current.x + 10, y: current.y + 10 }, { x: pos.x + 300, y: pos.y + 100 }, pos, speed);
+    movement_queue = path;
+    /*for (let i = 0; i < path.length; ++i) {
+        
+    }*/
+
+    return path;
+}
