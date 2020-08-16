@@ -24,3 +24,13 @@ let x = 0, y = 0,
     mouse_moved = false,
     movement_queue = [];
 
+// Create dispatch loop for custom events
+function dispatch_loop () {
+
+    let pos = movement_queue.shift();
+    if (pos) window.dispatchEvent(new MouseEvent('mousemove', { clientX: pos.x, clientY: pos.y }));
+
+    window.requestAnimationFrame(dispatch_loop);
+}
+window.requestAnimationFrame(dispatch_loop);
+
