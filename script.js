@@ -103,6 +103,11 @@ function handle_mouse(event) {
     }
 }
 
+// Add listeners to mouse events
+window.addEventListener('mousemove', handle_mouse, false);
+window.addEventListener('mouseup', handle_mouse, false);
+window.addEventListener('mousedown', handle_mouse, false);
+
 // Spoof mouse movement realistically
 function move_mouse(pos={ x: 0, y: 0 }, speed=0.01) {
     let current = { x, y };
@@ -115,3 +120,6 @@ function move_mouse(pos={ x: 0, y: 0 }, speed=0.01) {
 
     return path;
 }
+
+// Move the mouse
+move_mouse({ x: 100, y: 250 }, 0.05);
