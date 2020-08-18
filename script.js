@@ -2,6 +2,22 @@
 // Calulate distance between two points
 let distance = (x1, y1, x2, y2) => Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 
+// Get path of element
+function path(elem) {
+    let stack = [elem];
+
+    while (elem.parentNode != null) {
+        let parent = elem.parentNode;
+    
+        stack.push(parent);
+        elem = parent;
+    }
+
+    stack.push(window);
+
+    return stack;
+}
+
 // Remove old mouse preview elements
 document.getElementById('mouse-preview')?.remove();
 
