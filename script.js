@@ -1,3 +1,4 @@
+
 // Remove old mouse preview elements
 document.getElementById('mouse-preview')?.remove();
 
@@ -29,10 +30,10 @@ function dispatch_loop () {
 
     let pos = movement_queue.shift();
     if (pos) window.dispatchEvent(new MouseEvent('mousemove', { clientX: pos.x, clientY: pos.y }));
-
-    window.requestAnimationFrame(dispatch_loop);
 }
-window.requestAnimationFrame(dispatch_loop);
+
+// From testing I found the delay from mousemove events to have delay around 7 ms
+setInterval(dispatch_loop, 7); 
 
 // Get points along bezier curve
 function bezier (start, p1, p2, end, accuracy=0.01) {
@@ -107,6 +108,31 @@ function handle_mouse(event) {
 window.addEventListener('mousemove', handle_mouse, false);
 window.addEventListener('mouseup', handle_mouse, false);
 window.addEventListener('mousedown', handle_mouse, false);
+
+const move_to = async function (pos={ x: 0, y: 0 }, speed=0.01) {
+
+    // Get current mouse position
+    const current = { x, y };
+
+    // Get bezier path
+    const path = bezier(current, { x: current.x + 10, y: current.y + 10 }, { x: pos.x + 300, y: pos.y + 100 }, pos, speed);
+
+    // Return new promise
+    return new Promise((resolve, reject) => {
+
+        // Recursive function to dispatch events
+        const dispatch = positions => {
+            let coord = positions.shift();
+    
+            if (coord) {
+                window.dispatchEvent(new MouseEvent('mousemove', { clientX: coord.x, clientY: coord.y }));
+                setTimeout(() => dispatch(positions), 0);
+            } else resolve(pos);
+        };
+
+        dispatch(path);
+    });
+};
 
 // Spoof mouse movement realistically
 function move_mouse(pos={ x: 0, y: 0 }, speed=0.01) {
