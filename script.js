@@ -24,7 +24,7 @@ class FakeMouse {
         this.goal = { x: 0, y: 0 };
         this.moving = false;
 
-        this.speed = 1;
+        // The randomness of the movement
         this.random = 0;
     
         // The current position of the mouse
@@ -33,6 +33,7 @@ class FakeMouse {
 
         // The current velocity of the mouse
         this.velocity = { x: 0, y: 0 };
+        this.max_velocity = { x: 10, y: 10 };
 
         // The acceleration of the mouse
         this.acceleration = { x: 1, y: 1 };
@@ -61,7 +62,8 @@ class FakeMouse {
 
         if (this.moving === false) return;
 
-        
+        this.velocity.x += this.acceleration.x;
+        this.velocity.y += this.acceleration.y;
     }
 
     tick () {
@@ -75,8 +77,15 @@ class FakeMouse {
         // Update the mouse
         this.update_mouse();
 
+        // Dispatch the movement event
+        this.dispatch_movement(this.x, this.y);
+
         // Call loop
         window.requestAnimationFrame(this.tick);
+    }
+
+    dispatch_movement(x, y) {
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: x, clientY: y }));
     }
 }
 
@@ -103,46 +112,14 @@ window.addEventListener('resize', handle_resize);
 
 // Initialize basic variable
 let x = 0, y = 0,
-    mouse_moved = false,
-    movement_queue = [];
-
-// Create dispatch loop for custom events
-function dispatch_loop () {
-
-    let pos = movement_queue.shift();
-    if (pos) window.dispatchEvent(new MouseEvent('mousemove', { clientX: pos.x, clientY: pos.y }));
-}
-
-// From testing I found the delay from mousemove events to have delay around 7 ms
-setInterval(dispatch_loop, 7); 
-
-// Get points along bezier curve
-function bezier (start, p1, p2, end, accuracy=0.01) {
-    let cX = 3 * (p1.x - start.x),
-        bX = 3 * (p2.x - p1.x) - cX,
-        aX = end.x - start.x - cX - bX;
-
-    let cY = 3 * (p1.y - start.y),
-        bY = 3 * (p2.y - p1.y) - cY,
-        aY = end.y - start.y - cY - bY;
-
-    let steps = [];
-    for (let i = 0; i < 1; i += accuracy) {
-        let x = (aX * Math.pow(i, 3)) + (bX * Math.pow(i, 2)) + (cX * i) + start.x,
-            y = (aY * Math.pow(i, 3)) + (bY * Math.pow(i, 2)) + (cY * i) + start.y;
-
-        steps.push({ x, y });
-    }
-
-    steps.push(end);
-
-    return steps;
-}
+    mouse_moved = false;
 
 // Handle mouse events
 function handle_mouse(event) {
+
     if (mouse_moved === false) {
         mouse_moved = true;
+
         x = event.clientX;
         y = event.clientY;
     }
@@ -189,31 +166,3 @@ function handle_mouse(event) {
 window.addEventListener('mousemove', handle_mouse, false);
 window.addEventListener('mouseup', handle_mouse, false);
 window.addEventListener('mousedown', handle_mouse, false);
-
-const move_to = async function (pos={ x: 0, y: 0 }, speed=0.01) {
-
-    // Get current mouse position
-    const current = { x, y };
-
-    // Get bezier path
-    const path = bezier(current, { x: current.x + 10, y: current.y + 10 }, { x: pos.x + 300, y: pos.y + 100 }, pos, speed);
-
-    // Return new promise
-    return new Promise((resolve, reject) => {
-
-        // Recursive function to dispatch events
-        const dispatch = positions => {
-            let coord = positions.shift();
-    
-            if (coord) {
-                window.dispatchEvent(new MouseEvent('mousemove', { clientX: coord.x, clientY: coord.y }));
-                setTimeout(() => dispatch(positions), 0);
-            } else resolve(pos);
-        };
-
-        dispatch(path);
-    });
-};
-
-// Move the mouse
-move_to({x: 10, y: 200}, 0.01).then(e => move_to({x: 1000, y: 200}, 0.01));
