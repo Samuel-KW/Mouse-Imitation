@@ -38,6 +38,9 @@ class FakeMouse {
         // The acceleration of the mouse
         this.acceleration = { x: 0.1, y: 0.1 };
 
+        // Speed for distance max velocity algorithm
+        this.speed = 5;
+
         // Setup delta time
         this.last_update = Date.now();
         this.delta_time = 0;
@@ -46,7 +49,7 @@ class FakeMouse {
         window.requestAnimationFrame(() => this.tick());
     }
 
-    move_to(x, y, random=1, speed=1) {
+    move_to(x, y, random=1, speed=5) {
         
         this.goal.x = x;
         this.goal.y = y;
@@ -63,6 +66,9 @@ class FakeMouse {
 
         // Assign initial acceleration
         this.acceleration = { x: speed, y: speed };
+
+        // Assign initial speed
+        this.speed = speed;
     }
 
     update_mouse() {
@@ -71,8 +77,8 @@ class FakeMouse {
         if (this.moving === false) return;
 
         // Determine max velocity based on distance from goal
-        this.max_velocity.x = (Math.abs(this.goal.x - this.x) / window.innerWidth) * 5;
-        this.max_velocity.y = (Math.abs(this.goal.y - this.y) / window.innerHeight) * 5;
+        this.max_velocity.x = (Math.abs(this.goal.x - this.x) / window.innerWidth) * this.speed;
+        this.max_velocity.y = (Math.abs(this.goal.y - this.y) / window.innerHeight) * this.speed;
 
         // Add the acceleration to the velocity
         this.velocity.x += this.acceleration.x;
@@ -86,9 +92,11 @@ class FakeMouse {
         this.x += this.velocity.x * this.delta_time;
         this.y += this.velocity.y * this.delta_time;
 
+        // Change acceleration based on goal
         this.acceleration.x = (this.x > this.goal.x ? -Math.abs(this.acceleration.x) : Math.abs(this.acceleration.x));
         this.acceleration.y = (this.y > this.goal.y ? -Math.abs(this.acceleration.y) : Math.abs(this.acceleration.y));
 
+        // If the goal is reached
         if (Math.round(this.x) === Math.round(this.goal.x) && Math.round(this.y) === Math.round(this.goal.y)) {
             
             this.x = this.goal.x;
@@ -121,8 +129,8 @@ class FakeMouse {
     }
 }
 
-let mouse = new FakeMouse();
-mouse.move_to(500, 500, 5, 0.1);
+let mouse = new FakeMouse(100, 100);
+mouse.move_to(500, 500, 1, 100);
 
 // Remove old mouse preview elements
 document.getElementById('mouse-preview')?.remove();
