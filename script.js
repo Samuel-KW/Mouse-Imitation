@@ -18,6 +18,29 @@ function path(elem) {
     return stack;
 }
 
+class FakeMouse {
+    constructor (x=0, y=0) {
+
+        this.speed = 1;
+        this.random = 0;
+    
+        // The current position of the mouse
+        this.x = x;
+        this.y = y;
+
+        // The current velocity of the mouse
+        this.velocity = { x: 0, y: 0 };
+
+        // The acceleration of the mouse
+        this.acceleration = { x: 1, y: 1 };
+
+    }
+
+    move_to(x, y, random=0, speed=1) {
+
+    }
+}
+
 // Remove old mouse preview elements
 document.getElementById('mouse-preview')?.remove();
 
