@@ -33,37 +33,69 @@ class FakeMouse {
 
         // The current velocity of the mouse
         this.velocity = { x: 0, y: 0 };
-        this.max_velocity = { x: 10, y: 10 };
+        this.max_velocity = { x: 1, y: 1 };
 
         // The acceleration of the mouse
-        this.acceleration = { x: 1, y: 1 };
+        this.acceleration = { x: 0.1, y: 0.1 };
 
         // Setup delta time
         this.last_update = Date.now();
         this.delta_time = 0;
 
         // Start update loop
-        window.requestAnimationFrame(this.tick);
+        window.requestAnimationFrame(() => this.tick());
     }
 
-    move_to(x, y, random=0, speed=1) {
+    move_to(x, y, random=1, speed=1) {
         
         this.goal.x = x;
         this.goal.y = y;
 
         this.random = random;
-        this.speed = speed;
     
         this.moving = true;
+
+        // Assign a random initial velocity
+        this.velocity = {
+            x: (Math.random() * random) - random / 2,
+            y: (Math.random() * random) - random / 2
+        };
+
+        // Assign initial acceleration
+        this.acceleration = { x: speed, y: speed };
     }
 
     update_mouse() {
 
-
+        // Make sure the mouse is moving
         if (this.moving === false) return;
 
+        // Determine max velocity based on distance from goal
+        this.max_velocity.x = (Math.abs(this.goal.x - this.x) / window.innerWidth) * 5;
+        this.max_velocity.y = (Math.abs(this.goal.y - this.y) / window.innerHeight) * 5;
+
+        // Add the acceleration to the velocity
         this.velocity.x += this.acceleration.x;
         this.velocity.y += this.acceleration.y;
+
+        // Take into account the max velocity
+        if (this.velocity.x > this.max_velocity.x) this.velocity.x = this.max_velocity.x;
+        if (this.velocity.y > this.max_velocity.y) this.velocity.y = this.max_velocity.y;
+
+        // Update the mouse position
+        this.x += this.velocity.x * this.delta_time;
+        this.y += this.velocity.y * this.delta_time;
+
+        this.acceleration.x = (this.x > this.goal.x ? -Math.abs(this.acceleration.x) : Math.abs(this.acceleration.x));
+        this.acceleration.y = (this.y > this.goal.y ? -Math.abs(this.acceleration.y) : Math.abs(this.acceleration.y));
+
+        if (Math.round(this.x) === Math.round(this.goal.x) && Math.round(this.y) === Math.round(this.goal.y)) {
+            
+            this.x = this.goal.x;
+            this.y = this.goal.y;
+
+            this.moving = false;
+        }
     }
 
     tick () {
@@ -81,13 +113,16 @@ class FakeMouse {
         this.dispatch_movement(this.x, this.y);
 
         // Call loop
-        window.requestAnimationFrame(this.tick);
+        window.requestAnimationFrame(() => this.tick());
     }
 
     dispatch_movement(x, y) {
         window.dispatchEvent(new MouseEvent('mousemove', { clientX: x, clientY: y }));
     }
 }
+
+let mouse = new FakeMouse();
+mouse.move_to(500, 500, 5, 0.1);
 
 // Remove old mouse preview elements
 document.getElementById('mouse-preview')?.remove();
