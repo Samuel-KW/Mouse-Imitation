@@ -21,6 +21,9 @@ function path(elem) {
 class FakeMouse {
     constructor (x=0, y=0) {
 
+        this.goal = { x: 0, y: 0 };
+        this.moving = false;
+
         this.speed = 1;
         this.random = 0;
     
@@ -34,9 +37,15 @@ class FakeMouse {
         // The acceleration of the mouse
         this.acceleration = { x: 1, y: 1 };
 
+        this.last_update = Date.now();
+        this.delta_time = 0;
     }
 
     move_to(x, y, random=0, speed=1) {
+
+    }
+
+    update() {
 
     }
 }
