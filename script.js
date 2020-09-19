@@ -37,16 +37,46 @@ class FakeMouse {
         // The acceleration of the mouse
         this.acceleration = { x: 1, y: 1 };
 
+        // Setup delta time
         this.last_update = Date.now();
         this.delta_time = 0;
+
+        // Start update loop
+        window.requestAnimationFrame(this.tick);
     }
 
     move_to(x, y, random=0, speed=1) {
+        
+        this.goal.x = x;
+        this.goal.y = y;
 
+        this.random = random;
+        this.speed = speed;
+    
+        this.moving = true;
     }
 
-    update() {
+    update_mouse() {
 
+
+        if (this.moving === false) return;
+
+        
+    }
+
+    tick () {
+
+        let now = Date.now();
+
+        // Update delta time
+        this.delta_time = now - this.last_update;
+        this.last_update = now;
+
+        // Update the mouse
+        this.update_mouse();
+
+        // Call loop
+        window.requestAnimationFrame(this.tick);
     }
 }
 
